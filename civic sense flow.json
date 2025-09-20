@@ -1,0 +1,392 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "aa85fa84-25b8-46d8-9ddf-2ead796187ca",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -736,
+        480
+      ],
+      "id": "33727a73-1ead-4442-92a9-618eff1a3f16",
+      "name": "Webhook",
+      "webhookId": "aa85fa84-25b8-46d8-9ddf-2ead796187ca"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"success\": true, \"complaint_id\": \"{{ $json.complaint_id }}\"} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "7469a015-a8d1-4375-a37e-1d1040fec2f0",
+      "name": "Success Response"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        800,
+        608
+      ],
+      "id": "8418ea1e-686f-428e-8339-af961c0fee8f",
+      "name": "OpenAI Chat Model2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.body }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -512,
+        192
+      ],
+      "id": "e14978aa-33a2-4aa4-9d69-d3584ae98f3b",
+      "name": "Input Validation1"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "complaint_id",
+              "value": "="
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        96
+      ],
+      "id": "49b99e13-9cb7-43d4-bc0e-e4fb5be808a7",
+      "name": "Generate ID1"
+    },
+    {
+      "parameters": {
+        "url": "=",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        0,
+        192
+      ],
+      "id": "362feea4-5dc5-494c-b846-655a2377bfa2",
+      "name": "Geocoding1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        288,
+        384
+      ],
+      "id": "72cc5a67-40ce-4b07-9382-76d0f6bae030",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        512,
+        384
+      ],
+      "id": "7fefed8f-a983-40f7-b7ba-72dadb6bb31d",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "html": "{{ $json.text }}"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        1088,
+        384
+      ],
+      "id": "ffeab29d-3b39-4143-a9ad-0a4d6e7680a0",
+      "name": "HTML"
+    },
+    {
+      "parameters": {
+        "subject": "Complaint",
+        "message": "={{ $json.html }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1312,
+        384
+      ],
+      "id": "00ccfbe7-9d2c-4166-9f5f-e9381a8aa48c",
+      "name": "Send a message",
+      "webhookId": "cb4eb442-b0ee-43ef-a0ba-94ada309cbca"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Webhook').item.json.body }}",
+        "options": {
+          "systemMessage": "=You are a Civic Complaint Classifier and Summarizer for an Indian city.  \n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -64,
+        480
+      ],
+      "id": "c97e9d9d-ac15-45f3-af62-375bca1a4a61",
+      "name": "complaint analysis"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.data }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "="
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        736,
+        384
+      ],
+      "id": "304a70f3-757a-4704-89c5-b842565c1250",
+      "name": "summary maker"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer "
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"gpt-4.1-mini\",\n  \"input\": [\n    {\n      \"role\": \"user\",\n      \"content\": [\n        {\n          \"type\": \"input_text\",\n          \"text\": \"what's in this image?\"\n        },\n        {\n          \"type\": \"input_image\",\n          \"image_url\": \"{{ $json.body.image }}\"\n        }\n      ]\n    }\n  ]\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -288,
+        480
+      ],
+      "id": "a76fdc31-09c8-47f2-93d6-d8e3e124d916",
+      "name": "image analyis\\"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": false, \"error\": \"Invalid input\"}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        288
+      ],
+      "id": "3ef7adfa-37dd-4ff6-b934-8100e0ced145",
+      "name": "Validation Error1"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "image analyis\\",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Input Validation1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "complaint analysis",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "summary maker",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input Validation1": {
+      "main": [
+        [
+          {
+            "node": "Generate ID1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Validation Error1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate ID1": {
+      "main": [
+        [
+          {
+            "node": "Geocoding1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Geocoding1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "summary maker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "complaint analysis": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "summary maker": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "image analyis\\": {
+      "main": [
+        [
+          {
+            "node": "complaint analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "45a7d98dc9559fcce7b699a6db9dc995d6b62803ebe75bf6f0847598f0f8075f"
+  }
+}
