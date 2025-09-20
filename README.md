@@ -3,7 +3,8 @@
 This repository contains an **n8n workflow** that automates the intake, classification, summarization, geocoding, and email notification of civic complaints submitted via a webhook. The workflow leverages **OpenAI GPT models** for natural language understanding and **OpenStreetMap API** for location data.
 
 
-<img width="1024" height="1024" alt="Gemini_Generated_Image_bxojj4bxojj4bxoj" src="https://github.com/user-attachments/assets/705dd761-bed1-4f3a-8b94-2df544e25765" />
+<img width="1024" height="944" alt="Gemini_Generated_Image_r1k2o5r1k2o5r1k2" src="https://github.com/user-attachments/assets/68b559a5-3933-41bf-a6b6-306075bdf545" />
+
 
 ---
 
